@@ -1,5 +1,7 @@
 from kafka import KafkaConsumer
+import json
 
-consumer = KafkaConsumer('crypto-stream')
+consumer = KafkaConsumer("crypto-stream")
 for msg in consumer:
-    print (msg)
+    print(msg.offset)
+    print(json.loads(msg.value))
