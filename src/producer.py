@@ -56,4 +56,4 @@ def handle_trades_update(trade_update):
 
 
 if __name__ == "__main__":
-    run_sample(["markets:*:trades"], 1)
+    run_sample(["markets:*:trades"], 100)

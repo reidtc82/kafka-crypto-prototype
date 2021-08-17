@@ -141,23 +141,27 @@ def run_sample(subs, time_period):
             # print(res)
             last_offset = res["max_offset"] if res["max_offset"] > last_offset else 4000
 
-        consumer.seek(mypartition, last_offset)
+        for msg in consumer:
+            item = json.loads(msg.value)
+            print(item)
+            container.create_item(body=item)
+        # consumer.seek(mypartition, last_offset)
 
-        for _ in range(30):
-            poll_results = consumer.poll(0, 3, True)
-            for key in poll_results.keys():
-                for result in poll_results[key]:
-                    # print(result.offset)
-                    item = json.loads(result.value)
-                    item["offset"] = result.offset
+        # for _ in range(30):
+        #     poll_results = consumer.poll(0, 3, True)
+        #     for key in poll_results.keys():
+        #         for result in poll_results[key]:
+        #             # print(result.offset)
+        #             item = json.loads(result.value)
+        #             item["offset"] = result.offset
 
-                    # print('\n', type(item))
-                    time.sleep(0.01)
+        #             # print('\n', type(item))
+        #             time.sleep(0.01)
 
-                    try:
-                        container.create_item(body=item)
-                    except:
-                        print("Could not create item...")
+        #             try:
+        #                 container.create_item(body=item)
+        #             except:
+        #                 print("Could not create item...")
 
     except exceptions.CosmosHttpResponseError as e:
         print("\nrun_sample has caught an error. {0}".format(e.message))
