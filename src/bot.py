@@ -67,7 +67,7 @@ class TradeBot(AzureConsumer):
 
             print("inventory container setup...")
             try:
-                self.container = db.create_container(
+                self.inv_container = db.create_container(
                     id=self.INVENTORY_ID,
                     partition_key=PartitionKey(path="/partitionKey"),
                 )
@@ -76,7 +76,7 @@ class TradeBot(AzureConsumer):
                 )
 
             except exceptions.CosmosResourceExistsError:
-                self.container = db.get_container_client(self.INVENTORY_ID)
+                self.inv_container = db.get_container_client(self.INVENTORY_ID)
                 logging.warning(
                     "Container with id '{0}' was found".format(self.INVENTORY_ID)
                 )
@@ -126,13 +126,45 @@ class TradeBot(AzureConsumer):
             print("i buy {} at {}...".format(self.volume, price))
             self.money -= price * self.volume
             self.inventory += self.volume
-        logging.info("Buy success")
+            buy = {
+                "id": str(uuid.uuid4()),
+                "buy": {
+                    "volume": self.volume,
+                    "price": price,
+                    "balance": self.money,
+                    "inventory": self.inventory,
+                    "tradedate": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                },
+            }
+            try:
+                self.container.create_item(body=buy)
+                logging.info("Buy success")
+            except Exception as e:
+                print(e)
+                logging.error("Could not record buy item")
 
     def issue_sell(self, price):
         if self.inventory >= self.volume:
             print("i sell {} at {}...".format(self.volume, price))
             self.money += price * self.volume
             self.inventory -= self.volume
+            sell = {
+                "id": str(uuid.uuid4()),
+                "sell": {
+                    "volume": self.volume,
+                    "price": price,
+                    "balance": self.money,
+                    "inventory": self.inventory,
+                    "tradedate": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                },
+            }
+            try:
+                self.container.create_item(body=sell)
+                logging.info("Sell success")
+            except Exception as e:
+                print(e)
+                logging.error("Could not record sell item")
+
         logging.info("Sell success")
 
 
