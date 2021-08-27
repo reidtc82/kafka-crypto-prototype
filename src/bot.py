@@ -15,6 +15,7 @@ from kafka.structs import TopicPartition
 from azure_consumer import AzureConsumer
 import logging
 
+
 class TradeBot(AzureConsumer):
     def __init__(self, cont, inventory, vol, funds) -> None:
         self.INVENTORY_ID = config.settings[inventory]
@@ -22,12 +23,10 @@ class TradeBot(AzureConsumer):
         self.volume = vol
         self.inventory = 0
         super().__init__(cont)
-        logging.basicConfig(
-            filename="./logs/bot.log", level=logging.DEBUG
-        )
+        logging.basicConfig(filename="./logs/bot.log", level=logging.DEBUG)
 
     def run_sample(self):
-        logging.info('Sample run start')
+        logging.info("Sample run start")
         client = cosmos_client.CosmosClient(
             self.HOST,
             {"masterKey": self.MASTER_KEY},
@@ -44,7 +43,9 @@ class TradeBot(AzureConsumer):
 
             except exceptions.CosmosResourceExistsError:
                 db = client.get_database_client(self.DATABASE_ID)
-                logging.warning("Database with id '{0}' was found".format(self.DATABASE_ID))
+                logging.warning(
+                    "Database with id '{0}' was found".format(self.DATABASE_ID)
+                )
 
             # setup container for this sample
             # global container
@@ -54,11 +55,15 @@ class TradeBot(AzureConsumer):
                     id=self.CONTAINER_ID,
                     partition_key=PartitionKey(path="/partitionKey"),
                 )
-                logging.info("Container with id '{0}' created".format(self.CONTAINER_ID))
+                logging.info(
+                    "Container with id '{0}' created".format(self.CONTAINER_ID)
+                )
 
             except exceptions.CosmosResourceExistsError:
                 self.container = db.get_container_client(self.CONTAINER_ID)
-                logging.warning("Container with id '{0}' was found".format(self.CONTAINER_ID))
+                logging.warning(
+                    "Container with id '{0}' was found".format(self.CONTAINER_ID)
+                )
 
             print("inventory container setup...")
             try:
@@ -66,11 +71,15 @@ class TradeBot(AzureConsumer):
                     id=self.INVENTORY_ID,
                     partition_key=PartitionKey(path="/partitionKey"),
                 )
-                logging.info("Container with id '{0}' created".format(self.INVENTORY_ID))
+                logging.info(
+                    "Container with id '{0}' created".format(self.INVENTORY_ID)
+                )
 
             except exceptions.CosmosResourceExistsError:
                 self.container = db.get_container_client(self.INVENTORY_ID)
-                logging.warning("Container with id '{0}' was found".format(self.INVENTORY_ID))
+                logging.warning(
+                    "Container with id '{0}' was found".format(self.INVENTORY_ID)
+                )
 
             consumer = KafkaConsumer()
             mypartition = TopicPartition("crypto-stream", 0)
@@ -117,14 +126,14 @@ class TradeBot(AzureConsumer):
             print("i buy {} at {}...".format(self.volume, price))
             self.money -= price * self.volume
             self.inventory += self.volume
-        logging.info('Buy success')
+        logging.info("Buy success")
 
     def issue_sell(self, price):
         if self.inventory >= self.volume:
             print("i sell {} at {}...".format(self.volume, price))
             self.money += price * self.volume
             self.inventory -= self.volume
-        logging.info('Sell success')
+        logging.info("Sell success")
 
 
 if __name__ == "__main__":

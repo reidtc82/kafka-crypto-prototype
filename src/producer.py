@@ -8,9 +8,7 @@ import logging
 import os
 import sys
 
-logging.basicConfig(
-    filename="./logs/producer.log", level=logging.DEBUG
-)
+logging.basicConfig(filename="./logs/producer.log", level=logging.DEBUG)
 
 try:
     producer = KafkaProducer(bootstrap_servers="localhost:9092", api_version=(0, 10))

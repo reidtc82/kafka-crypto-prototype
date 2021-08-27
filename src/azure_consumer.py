@@ -14,6 +14,7 @@ from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
 import logging
 
+
 class AzureConsumer:
     def __init__(self, cont) -> None:
         self.HOST = config.settings["host"]
@@ -22,9 +23,7 @@ class AzureConsumer:
         self.CONTAINER_ID = config.settings[cont]
 
         self.container = None
-        logging.basicConfig(
-            filename="./logs/azure_consumer.log", level=logging.DEBUG
-        )
+        logging.basicConfig(filename="./logs/azure_consumer.log", level=logging.DEBUG)
 
     def read_items(self, container):
         print("\nReading all items in a container\n")
