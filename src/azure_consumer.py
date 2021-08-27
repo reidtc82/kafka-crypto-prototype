@@ -12,7 +12,7 @@ import json
 import uuid
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
-
+import logging
 
 class AzureConsumer:
     def __init__(self, cont) -> None:
@@ -22,6 +22,9 @@ class AzureConsumer:
         self.CONTAINER_ID = config.settings[cont]
 
         self.container = None
+        logging.basicConfig(
+            filename="./logs/azure_consumer.log", level=logging.DEBUG
+        )
 
     def read_items(self, container):
         print("\nReading all items in a container\n")
@@ -101,7 +104,7 @@ class AzureConsumer:
             for msg in consumer:
                 item = json.loads(msg.value)
                 print(item)
-                # self.container.create_item(body=item)
+                self.container.create_item(body=item)
 
         except exceptions.CosmosHttpResponseError as e:
             print("\nrun_sample has caught an error. {0}".format(e.message))
